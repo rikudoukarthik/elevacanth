@@ -1,3 +1,5 @@
+# import and prepare data for analyses
+
 library(tidyverse)
 library(readxl)
 library(glue)
@@ -53,7 +55,7 @@ hab_w <- read_xlsx(data_path, sheet = "HabChar_W") %>%
   rename_with(.cols = ends_with("_avg"), ~ .x %>% str_replace("_", ".") %>% str_to_upper()) %>% 
   rename_with(.cols = starts_with("CO_"), ~ .x %>% str_replace("_", "."))
 
-habvars <- bind_rows(hab_w, hab_m)         
+hab_vars <- bind_rows(hab_w, hab_m)         
 
 
 data_w <- read_xlsx(data_path, sheet = "Mt Wilhelm") %>% 
@@ -67,7 +69,8 @@ data_w <- read_xlsx(data_path, sheet = "Mt Wilhelm") %>%
   rename_with(~ .x %>% str_replace("_", ".") %>% str_to_upper()) %>% 
   rename(PLACE.ELEV = PLOT,
          TIME.CLASS = TIME.PART) %>% 
-  mutate(MOUNTAIN = "Wilhelm")
+  mutate(MOUNTAIN = "Wilhelm",
+         PLACE.ELEV = as.numeric(PLACE.ELEV))
 
 data_m <- read_xlsx(data_path, sheet = "Mt Michael", range = cell_cols("A:S")) %>% 
   dplyr::select(Plot, Day, Point, contains("-"), Spec_Code) %>% 
@@ -82,5 +85,6 @@ data_m <- read_xlsx(data_path, sheet = "Mt Michael", range = cell_cols("A:S")) %
   mutate(MOUNTAIN = "Michael") %>% 
   arrange(PLACE.ELEV, DAY, POINT, DISTANCE.CLASS)
 
+bird_data <- bind_rows(data_w, data_m)
 
-    
+rm(data_m, data_w, hab_m, hab_w)
